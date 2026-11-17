@@ -16,6 +16,8 @@ docker compose config --quiet
 
 浏览器访问 http://localhost:18213 。默认载入仓内样例。工具条可选择CSV文件运行；样例文件位于 `sample_data/instrument.csv`。重复执行同一内容复用同一批次。
 
+复测在批次页面的“复测送审”提交带版本号的新增记录，样例见 `sample_data/retest.csv`；也可 `POST /api/7/retest`。复测只追加版本，不重传原批次；原批次证据以结论版本 0 保留可查。
+
 ## 模块
 
 - M1 样品接收：`/module/1`，独立计算 `POST /api/1`。

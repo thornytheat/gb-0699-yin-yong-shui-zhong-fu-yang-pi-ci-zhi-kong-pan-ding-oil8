@@ -27,6 +27,23 @@
 | TRAP-15 | ug与mg | 静默采信错误值 | 统一mg/L | `app/modules/m2_contract/rules.py` | `tests/test_contract.py::test_contract_unit` |
 | TRAP-19 | 多质控失败 | 静默采信错误值 | 明确优先级 | `app/modules/m6_release/rules.py` | `tests/test_release.py::test_release_priority` |
 | TRAP-26 | 陈旧复测 | 静默采信错误值 | 版本递增 | `app/modules/m7_retest/rules.py` | `tests/test_retest.py::test_retest_stale` |
+| TRAP-27 | 晚到旧版 | 重跑后有效值倒退 | 对比当前最高版隔离 | `app/versions.py` | `tests/test_retest_versions.py::test_late_old_version_cannot_roll_back` |
+| TRAP-28 | 同版异值 | 静默采信冲突记录 | 身份键内同版异值隔离 | `app/versions.py` | `tests/test_retest_versions.py::test_same_version_different_value_isolated` |
+| TRAP-29 | 复测重试 | 每次重试新增结论版本 | 操作幂等键 | `app/store.py` | `tests/test_retest_versions.py::test_retest_retry_same_text_does_not_add_version` |
+| TRAP-30 | 切换中断 | 半新半旧结论 | 结论表与指针同事务，进度分阶段续跑 | `app/store.py` | `tests/test_retest_versions.py::test_retest_resumes_from_last_confirmed_stage` |
+| TRAP-31 | 重跑覆盖原证据 | 原平行样/空白无法追溯 | 原批次结论版本 0 只读留存 | `app/store.py` | `tests/test_retest_versions.py::test_original_evidence_survives_switch` |
+
+## 复测版本模型
+
+| 概念 | 位置 |
+|---|---|
+| 身份键与裁决 | `app/versions.py` |
+| 重算范围扩散 | `app/scope.py` |
+| 质控项前后对照 | `app/changes.py` |
+| 增量复测编排 | `app/retest.py` |
+| 结论切换与断点续跑 | `app/store.py` |
+| 复测接口 | `app/modules/m7_retest/handler.py` |
+
 
 ## 对账规则
 

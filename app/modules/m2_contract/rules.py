@@ -2,6 +2,7 @@ from decimal import Decimal
 from app.numbers import number
 from app.report import report,quarantine
 from app.errors import BusinessError
+from app.versions import version_of
 UNITS={"mg/L":Decimal(1),"ug/L":Decimal("0.001")}
 LIMITS={"Pb":Decimal("0.001"),"As":Decimal("0.001")}
 def measure(text,unit):
@@ -23,9 +24,12 @@ def apply(ctx):
         try:
             if r["analyte"] not in LIMITS:raise BusinessError("ANALYTE","检测项无效")
             if r["kind"] not in {"sample","duplicate","spike","blank"}:raise BusinessError("KIND","样品类别无效")
-            x=dict(r);x["value_mg"],x["censored"]=measure(r["value"],r["unit"]);x["spike_mg"],_=measure(r["spike"],r["unit"]);x["rev"]=int(r["version"])
-            if x["rev"]<1:raise BusinessError("VERSION","版本须大于零")
+            x=dict(r);x["value_mg"],x["censored"]=measure(r["value"],r["unit"]);x["spike_mg"],_=measure(r["spike"],r["unit"])
+            x["rev"]=version_of(r);x["version"]=r["version"]
+            if x["rev"] is None or x["rev"]<1:raise BusinessError("VERSION","版本须为正整数")
             out.append(x)
         except (BusinessError,ValueError) as e:quarantine(ctx,r,getattr(e,"code","VERSION"))
     ctx["normalized"]=out;ctx["effective"]=latest(out)
+    if "original_versions" not in ctx:
+        ctx["original_versions"]={f"{r['batch']}|{r['analyte']}|{r['id']}":r["rev"] for r in ctx["effective"]}
     return report(ctx["effective"],有效=len(ctx["effective"]),历史=len(out)-len(ctx["effective"]),单位="mg/L")
